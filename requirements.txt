@@ -4,3 +4,5 @@ google-genai
 jinja2
 pydantic
 python-dotenv
+pytest
+httpx
