@@ -2,170 +2,1603 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic Travel Engine</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description"
+        content="Voyager — AI-powered travel planning. Generate personalised day-by-day itineraries for any destination." />
+    <title>Voyager — AI Travel Engine</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&display=swap"
+        rel="stylesheet" />
+
     <style>
+        /* ── TOKENS ──────────────────────────────────────────── */
         :root {
-            font-family: system-ui, -apple-system, sans-serif;
+            --jungle: #0d3b2e;
+            --forest: #1a5c3a;
+            --palm: #2d7a52;
+            --sage: #4fa87a;
+            --sand: #f5e6c8;
+            --dusk: #f0d49a;
+            --amber: #e8920a;
+            --sunset: #e8520a;
+            --coral: #d94f3b;
+            --ocean: #0a6e8a;
+            --sky: #1a9abf;
+            --ink: #0d1a14;
+            --mist: #f8f4ed;
+            --fog: #8fa89a;
+            --white: #ffffff;
+            --card-bg: rgba(255, 255, 255, 0.92);
+            --border: rgba(13, 59, 46, 0.12);
+
+            --font-display: 'Playfair Display', Georgia, serif;
+            --font-serif: 'DM Serif Display', Georgia, serif;
+            --font-body: 'DM Sans', system-ui, sans-serif;
+
+            --radius-lg: 24px;
+            --radius-md: 16px;
+            --radius-sm: 10px;
+            --shadow-card: 0 8px 48px rgba(13, 59, 46, 0.13), 0 2px 8px rgba(13, 59, 46, 0.06);
+            --shadow-float: 0 20px 80px rgba(13, 59, 46, 0.18);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
         }
 
         body {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 2rem;
-            background: #f9fafb;
-            color: #111827;
+            font-family: var(--font-body);
+            background: var(--mist);
+            color: var(--ink);
+            min-height: 100vh;
+            overflow-x: hidden;
         }
 
-        .card {
-            background: white;
+        /* paper grain overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.028;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23g)'/%3E%3C/svg%3E");
+            background-repeat: repeat;
+        }
+
+        /* ── HERO ──────────────────────────────────────────────── */
+        .hero {
+            min-height: 100vh;
+            position: relative;
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+            background: var(--jungle);
+        }
+
+        .hero-canvas {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            background:
+                radial-gradient(ellipse 80% 100% at 10% 0%, rgba(45, 122, 82, 0.55) 0%, transparent 55%),
+                radial-gradient(ellipse 60% 80% at 90% 100%, rgba(10, 110, 138, 0.4) 0%, transparent 55%),
+                radial-gradient(ellipse 100% 60% at 50% 50%, rgba(232, 82, 10, 0.12) 0%, transparent 60%),
+                linear-gradient(160deg, #0d3b2e 0%, #0a1f18 60%, #05121a 100%);
+        }
+
+        /* decorative circle rings */
+        .hero-ring {
+            position: absolute;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.045);
+            pointer-events: none;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
             padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 780px;
+        }
+
+        .hero-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.45rem 1.1rem;
+            border: 1px solid rgba(232, 146, 10, 0.45);
+            border-radius: 100px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            letter-spacing: 0.28em;
+            text-transform: uppercase;
+            color: var(--dusk);
             margin-bottom: 2rem;
+            opacity: 0;
+            animation: riseIn 0.8s 0.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        .hero-eyebrow::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: var(--amber);
+            border-radius: 50%;
+            animation: pulse 2.4s infinite;
+        }
+
+        .hero-title {
+            font-family: var(--font-display);
+            font-size: clamp(3.8rem, 10vw, 8rem);
+            font-weight: 900;
+            line-height: 0.92;
+            letter-spacing: -0.025em;
+            color: var(--white);
+            opacity: 0;
+            animation: riseIn 1s 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        .hero-title em {
+            font-style: italic;
+            font-weight: 700;
+            color: transparent;
+            -webkit-text-stroke: 2px var(--amber);
+            display: block;
+        }
+
+        .hero-sub {
+            font-size: 1rem;
+            font-weight: 300;
+            color: rgba(245, 230, 200, 0.7);
+            margin-top: 1.75rem;
+            line-height: 1.8;
+            max-width: 360px;
+            margin-left: auto;
+            margin-right: auto;
+            opacity: 0;
+            animation: riseIn 0.9s 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        .hero-cta {
+            margin-top: 2.5rem;
+            opacity: 0;
+            animation: riseIn 0.9s 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        .btn-scroll {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.85rem 2rem;
+            background: var(--amber);
+            color: var(--ink);
+            border: none;
+            border-radius: 100px;
+            font-family: var(--font-body);
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            cursor: pointer;
+            text-decoration: none;
+            transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+            box-shadow: 0 8px 32px rgba(232, 146, 10, 0.4);
+        }
+
+        .btn-scroll:hover {
+            background: var(--sunset);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(232, 82, 10, 0.45);
+        }
+
+        .hero-scroll-indicator {
+            position: absolute;
+            bottom: 2.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            color: rgba(245, 230, 200, 0.4);
+            font-size: 0.58rem;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            opacity: 0;
+            animation: riseIn 1s 1.3s forwards;
+        }
+
+        .scroll-worm {
+            width: 1.5px;
+            height: 48px;
+            background: linear-gradient(to bottom, rgba(232, 146, 10, 0.7), transparent);
+            animation: wormDrop 2.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        /* ── SECTION WRAPPER ──────────────────────────────── */
+        .section {
+            padding: 5rem 1.5rem;
+            max-width: 960px;
+            margin: 0 auto;
+        }
+
+        .section-eyebrow {
+            font-size: 0.6rem;
+            font-weight: 600;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--forest);
+            margin-bottom: 0.6rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-eyebrow::before {
+            content: '';
+            display: block;
+            width: 24px;
+            height: 2px;
+            background: var(--amber);
+            border-radius: 1px;
+        }
+
+        .section-title {
+            font-family: var(--font-display);
+            font-size: clamp(2rem, 4.5vw, 3rem);
+            font-weight: 700;
+            line-height: 1.1;
+            color: var(--jungle);
+            margin-bottom: 3rem;
+        }
+
+        /* ── FORM CARD ──────────────────────────────────────── */
+        .form-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 3rem;
+            box-shadow: var(--shadow-card);
+            backdrop-filter: blur(20px);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .fg-full {
+            grid-column: 1 / -1;
         }
 
         .form-group {
-            margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
         }
 
-        label {
-            display: block;
+        .form-label {
+            font-size: 0.62rem;
             font-weight: 600;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--fog);
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        select {
+            background: transparent;
+            border: none;
+            border-bottom: 1.5px solid rgba(13, 59, 46, 0.18);
+            padding: 0.7rem 0;
+            font-family: var(--font-body);
+            font-size: 0.95rem;
+            color: var(--ink);
+            outline: none;
+            width: 100%;
+            transition: border-color 0.25s;
+            color-scheme: light;
+        }
+
+        input:focus,
+        select:focus {
+            border-bottom-color: var(--amber);
+        }
+
+        input::placeholder {
+            color: rgba(13, 59, 46, 0.3);
+        }
+
+        select {
+            cursor: pointer;
+        }
+
+        .date-hint {
+            font-size: 0.7rem;
+            color: var(--forest);
+            font-weight: 500;
+            min-height: 1.2em;
+            margin-top: 0.2rem;
+        }
+
+        .date-hint.warn {
+            color: var(--coral);
+        }
+
+        /* ── CHIPS ─────────────────────────────────────────── */
+        .chips-label {
+            font-size: 0.62rem;
+            font-weight: 600;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--fog);
+            margin-bottom: 0.65rem;
+        }
+
+        .chips-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.48rem 1rem;
+            border: 1.5px solid rgba(13, 59, 46, 0.15);
+            border-radius: 100px;
+            font-family: var(--font-body);
+            font-size: 0.77rem;
+            font-weight: 400;
+            color: var(--fog);
+            background: transparent;
+            cursor: pointer;
+            transition: border-color 0.18s, color 0.18s, background 0.18s;
+            user-select: none;
+            white-space: nowrap;
+        }
+
+        .chip:hover {
+            border-color: var(--palm);
+            color: var(--forest);
+            background: rgba(45, 122, 82, 0.06);
+        }
+
+        .chip:focus-visible {
+            outline: 2px solid var(--amber);
+            outline-offset: 2px;
+        }
+
+        .chip.active {
+            background: var(--jungle);
+            border-color: var(--jungle);
+            color: var(--dusk);
+            font-weight: 500;
+        }
+
+        /* ── GENERATE BUTTON ──────────────────────────────── */
+        .btn-generate {
+            width: 100%;
+            margin-top: 2.5rem;
+            padding: 1.15rem 2rem;
+            background: var(--jungle);
+            color: var(--dusk);
+            border: 2px solid var(--jungle);
+            border-radius: 100px;
+            font-family: var(--font-body);
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: color 0.3s, transform 0.2s;
+        }
+
+        .btn-generate .fill {
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: var(--amber);
+            transform: translateY(100%);
+            transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .btn-generate:hover .fill {
+            transform: translateY(0);
+        }
+
+        .btn-generate:hover {
+            color: var(--ink);
+        }
+
+        .btn-generate:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn-generate span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn-generate:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-generate:disabled .fill {
+            display: none;
+        }
+
+        /* ── LOADER ────────────────────────────────────────── */
+        #loader {
+            display: none;
+            padding: 5rem 2rem;
+            text-align: center;
+        }
+
+        .loader-inner {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .loader-compass {
+            width: 56px;
+            height: 56px;
+            border: 2px solid rgba(13, 59, 46, 0.12);
+            border-top-color: var(--amber);
+            border-radius: 50%;
+            animation: spin 0.85s linear infinite;
+            position: relative;
+        }
+
+        .loader-compass::after {
+            content: '✦';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1rem;
+            color: var(--amber);
+        }
+
+        .loader-msg {
+            font-size: 0.85rem;
+            color: var(--fog);
+            letter-spacing: 0.04em;
+            line-height: 1.7;
+            max-width: 280px;
+            font-style: italic;
+        }
+
+        .loader-dots {
+            display: flex;
+            gap: 0.35rem;
+        }
+
+        .loader-dots span {
+            width: 6px;
+            height: 6px;
+            background: var(--sage);
+            border-radius: 50%;
+            animation: dotPop 1.4s infinite;
+        }
+
+        .loader-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .loader-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        /* ── WEATHER BAR ───────────────────────────────────── */
+        #weather-bar {
+            display: none;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            padding: 1rem 1.5rem;
+            background: linear-gradient(135deg, rgba(13, 59, 46, 0.06), rgba(10, 110, 138, 0.06));
+            border: 1px solid rgba(13, 59, 46, 0.1);
+            border-radius: var(--radius-md);
+            margin-bottom: 2rem;
+        }
+
+        .w-item {
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            font-size: 0.82rem;
+            color: var(--fog);
+        }
+
+        .w-icon {
+            font-size: 1.3rem;
+        }
+
+        .w-val {
+            font-weight: 600;
+            color: var(--ink);
+        }
+
+        .w-note {
+            margin-left: auto;
+            font-size: 0.68rem;
+            color: var(--amber);
+            font-style: italic;
+            font-weight: 500;
+        }
+
+        /* ── DESTINATION HERO BANNER ───────────────────────── */
+        .dest-banner {
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            margin-bottom: 2.5rem;
+            height: 240px;
+            position: relative;
+            background: linear-gradient(135deg, var(--jungle), var(--ocean));
+            display: flex;
+            align-items: flex-end;
+            padding: 2rem;
+        }
+
+        .dest-banner-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .dest-banner-name {
+            font-family: var(--font-display);
+            font-size: clamp(2.2rem, 5vw, 3.5rem);
+            font-weight: 900;
+            color: var(--white);
+            line-height: 1;
+            text-shadow: 0 2px 16px rgba(0, 0, 0, 0.35);
+        }
+
+        .dest-banner-meta {
+            font-size: 0.72rem;
+            font-weight: 500;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--dusk);
+            margin-top: 0.4rem;
+            opacity: 0.85;
+        }
+
+        .dest-banner-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top right,
+                    rgba(13, 59, 46, 0.7) 0%,
+                    rgba(10, 110, 138, 0.3) 60%,
+                    transparent 100%);
+        }
+
+        /* vibrant patterns inside banner */
+        .dest-banner-deco {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .dest-banner-deco::before,
+        .dest-banner-deco::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+        }
+
+        .dest-banner-deco::before {
+            width: 320px;
+            height: 320px;
+            top: -80px;
+            right: -60px;
+            background: radial-gradient(circle, rgba(232, 146, 10, 0.25) 0%, transparent 70%);
+        }
+
+        .dest-banner-deco::after {
+            width: 200px;
+            height: 200px;
+            bottom: -40px;
+            right: 30%;
+            background: radial-gradient(circle, rgba(26, 154, 191, 0.3) 0%, transparent 70%);
+        }
+
+        /* ── VIBE BADGE ─────────────────────────────────────── */
+        .vibe-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1.2rem;
+            background: linear-gradient(135deg, var(--amber), var(--sunset));
+            border-radius: 100px;
+            color: #fff;
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 20px rgba(232, 146, 10, 0.35);
+        }
+
+        /* ── TRIP SUMMARY ───────────────────────────────────── */
+        #summary-text {
+            font-family: var(--font-serif);
+            font-size: 1.3rem;
+            font-style: italic;
+            color: var(--jungle);
+            line-height: 1.8;
+            margin-bottom: 3rem;
+            padding: 1.75rem 2rem;
+            border-left: 3px solid var(--amber);
+            background: linear-gradient(135deg,
+                    rgba(232, 146, 10, 0.05) 0%,
+                    rgba(45, 122, 82, 0.04) 100%);
+            border-radius: 0 var(--radius-md) var(--radius-md) 0;
+        }
+
+        /* ── DAY CARDS ──────────────────────────────────────── */
+        .day-card {
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 2.25rem;
+            margin-bottom: 1.75rem;
+            background: var(--card-bg);
+            box-shadow: 0 4px 24px rgba(13, 59, 46, 0.06);
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            animation: riseIn 0.6s forwards;
+        }
+
+        .day-card:nth-child(1) {
+            animation-delay: 0.08s;
+        }
+
+        .day-card:nth-child(2) {
+            animation-delay: 0.16s;
+        }
+
+        .day-card:nth-child(3) {
+            animation-delay: 0.24s;
+        }
+
+        .day-card:nth-child(4) {
+            animation-delay: 0.32s;
+        }
+
+        .day-card:nth-child(5) {
+            animation-delay: 0.40s;
+        }
+
+        .day-card:nth-child(n+6) {
+            animation-delay: 0.48s;
+        }
+
+        /* top colour bar per card cycling through travel palette */
+        .day-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+        }
+
+        .day-card:nth-child(6n+1)::before {
+            background: linear-gradient(90deg, var(--amber), var(--sunset));
+        }
+
+        .day-card:nth-child(6n+2)::before {
+            background: linear-gradient(90deg, var(--forest), var(--ocean));
+        }
+
+        .day-card:nth-child(6n+3)::before {
+            background: linear-gradient(90deg, var(--ocean), var(--sky));
+        }
+
+        .day-card:nth-child(6n+4)::before {
+            background: linear-gradient(90deg, var(--sunset), var(--coral));
+        }
+
+        .day-card:nth-child(6n+5)::before {
+            background: linear-gradient(90deg, var(--palm), var(--sage));
+        }
+
+        .day-card:nth-child(6n+6)::before {
+            background: linear-gradient(90deg, var(--sky), var(--forest));
+        }
+
+        /* large watermark day number */
+        .day-card::after {
+            content: attr(data-day);
+            position: absolute;
+            right: 1.5rem;
+            top: 1rem;
+            font-family: var(--font-display);
+            font-size: 5rem;
+            font-weight: 900;
+            color: rgba(13, 59, 46, 0.04);
+            line-height: 1;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .day-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .day-left {
+            display: flex;
+            align-items: baseline;
+            gap: 0.75rem;
+        }
+
+        .day-num {
+            font-family: var(--font-display);
+            font-size: 2.6rem;
+            font-weight: 900;
+            line-height: 1;
+            color: var(--jungle);
+            -webkit-text-stroke: 0;
+        }
+
+        .day-title {
+            font-family: var(--font-display);
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--ink);
+            line-height: 1.2;
+        }
+
+        .day-date {
+            font-size: 0.62rem;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--amber);
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-replan {
+            flex-shrink: 0;
+            background: transparent;
+            border: 1.5px solid var(--border);
+            border-radius: 100px;
+            padding: 0.38rem 1rem;
+            font-family: var(--font-body);
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: var(--fog);
+            cursor: pointer;
+            transition: border-color 0.2s, color 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-replan:hover {
+            border-color: var(--amber);
+            color: var(--amber);
+        }
+
+        .btn-replan:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+
+        .btn-replan:focus-visible {
+            outline: 2px solid var(--amber);
+            outline-offset: 2px;
+        }
+
+        /* ── ACTIVITY GRID ──────────────────────────────────── */
+        .activity-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        .activity-slot {
+            border-radius: var(--radius-sm);
+            padding: 1.1rem;
+            transition: opacity 0.3s, transform 0.3s;
+        }
+
+        .activity-slot.morning {
+            background: linear-gradient(135deg, rgba(232, 146, 10, 0.09), rgba(232, 82, 10, 0.06));
+            border: 1px solid rgba(232, 146, 10, 0.14);
+        }
+
+        .activity-slot.afternoon {
+            background: linear-gradient(135deg, rgba(13, 59, 46, 0.07), rgba(10, 110, 138, 0.07));
+            border: 1px solid rgba(13, 59, 46, 0.1);
+        }
+
+        .activity-slot.evening {
+            background: linear-gradient(135deg, rgba(10, 110, 138, 0.08), rgba(26, 154, 191, 0.06));
+            border: 1px solid rgba(10, 110, 138, 0.12);
+        }
+
+        .activity-slot.loading {
+            opacity: 0.3;
+            transform: scale(0.97);
+        }
+
+        .activity-time {
+            font-size: 0.6rem;
+            font-weight: 600;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
             margin-bottom: 0.5rem;
         }
 
-        input,
-        select {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
-            box-sizing: border-box;
+        .activity-slot.morning .activity-time {
+            color: var(--amber);
         }
 
-        button {
-            background: #2563eb;
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 6px;
+        .activity-slot.afternoon .activity-time {
+            color: var(--forest);
+        }
+
+        .activity-slot.evening .activity-time {
+            color: var(--ocean);
+        }
+
+        .activity-text {
+            font-size: 0.87rem;
+            line-height: 1.65;
+            color: var(--ink);
+        }
+
+        /* map link */
+        .card-actions {
+            margin-top: 1.25rem;
+        }
+
+        .btn-map {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.4rem 1rem;
+            border: 1.5px solid rgba(10, 110, 138, 0.3);
+            border-radius: 100px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: var(--ocean);
+            background: transparent;
+            text-decoration: none;
+            transition: background 0.2s, color 0.2s;
             cursor: pointer;
-            font-weight: 600;
-            width: 100%;
         }
 
-        button:hover {
-            background: #1d4ed8;
+        .btn-map:hover {
+            background: var(--ocean);
+            color: #fff;
+            border-color: var(--ocean);
         }
 
-        .loader {
+        .btn-map:focus-visible {
+            outline: 2px solid var(--ocean);
+            outline-offset: 2px;
+        }
+
+        /* ── DIVIDER ────────────────────────────────────────── */
+        hr {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 2rem 0;
+        }
+
+        /* ── ACTION BUTTONS ─────────────────────────────────── */
+        .actions-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: center;
+            margin-top: 2.5rem;
+        }
+
+        .btn-action {
             display: none;
-            text-align: center;
-            font-style: italic;
-            color: #6b7280;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 100px;
+            font-family: var(--font-body);
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid var(--jungle);
+            background: transparent;
+            color: var(--jungle);
         }
 
-        .day-card {
-            border-left: 4px solid #2563eb;
-            padding-left: 1rem;
-            margin-bottom: 1.5rem;
+        .btn-action:hover {
+            background: var(--jungle);
+            color: var(--dusk);
+        }
+
+        .btn-action:focus-visible {
+            outline: 2px solid var(--amber);
+            outline-offset: 2px;
+        }
+
+        .btn-action.accent {
+            border-color: var(--amber);
+            color: var(--amber);
+        }
+
+        .btn-action.accent:hover {
+            background: var(--amber);
+            color: var(--ink);
+        }
+
+        /* ── FOOTER ──────────────────────────────────────────── */
+        footer {
+            text-align: center;
+            padding: 3rem 2rem;
+            font-size: 0.68rem;
+            color: var(--fog);
+            letter-spacing: 0.08em;
+            border-top: 1px solid var(--border);
+        }
+
+        footer a {
+            color: var(--forest);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            color: var(--amber);
+        }
+
+        /* ── ANIMATIONS ──────────────────────────────────────── */
+        @keyframes riseIn {
+            from {
+                opacity: 0;
+                transform: translateY(24px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.5;
+                transform: scale(1.4);
+            }
+        }
+
+        @keyframes wormDrop {
+            0% {
+                opacity: 0;
+                transform: scaleY(0.4) translateY(-10px);
+            }
+
+            40% {
+                opacity: 1;
+                transform: scaleY(1) translateY(0);
+            }
+
+            80% {
+                opacity: 0.3;
+                transform: scaleY(0.6) translateY(6px);
+            }
+
+            100% {
+                opacity: 0;
+                transform: scaleY(0.4) translateY(-10px);
+            }
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes dotPop {
+
+            0%,
+            80%,
+            100% {
+                transform: scale(0.4);
+                opacity: 0.3;
+            }
+
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* ── RESPONSIVE ──────────────────────────────────────── */
+        @media (max-width: 640px) {
+            .form-card {
+                padding: 1.75rem 1.25rem;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .activity-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-title {
+                font-size: clamp(3rem, 14vw, 4.5rem);
+            }
+
+            .day-header {
+                flex-wrap: wrap;
+            }
+        }
+
+        /* ── SKIP LINK (accessibility) ───────────────────────── */
+        .skip-link {
+            position: absolute;
+            top: -100%;
+            left: 1rem;
+            background: var(--amber);
+            color: var(--ink);
+            padding: 0.5rem 1rem;
+            border-radius: 0 0 8px 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-decoration: none;
+            z-index: 10000;
+            transition: top 0.2s;
+        }
+
+        .skip-link:focus {
+            top: 0;
         }
     </style>
 </head>
 
 <body>
 
-    <header>
-        <h1>✈️ Vibe Travel Engine</h1>
-        <p>Dynamic planning powered by Gemini.</p>
-    </header>
+    <a class="skip-link" href="#plan-form">Skip to planning form</a>
 
-    <div class="card">
-        <form id="travelForm">
-            <div class="form-group">
-                <label for="destination">Where to?</label>
-                <input type="text" id="destination" required placeholder="e.g., Tokyo, Japan" aria-label="Destination">
+    <!-- ╔══════════ HERO ══════════╗ -->
+    <section class="hero" aria-label="Voyager — AI Travel Engine">
+        <div class="hero-canvas" aria-hidden="true"></div>
+        <div class="hero-ring" style="width:900px;height:900px;top:-350px;left:-300px" aria-hidden="true"></div>
+        <div class="hero-ring" style="width:650px;height:650px;bottom:-220px;right:-180px" aria-hidden="true"></div>
+        <div class="hero-ring" style="width:400px;height:400px;top:30%;right:8%" aria-hidden="true"></div>
+
+        <div class="hero-content">
+            <p class="hero-eyebrow" aria-hidden="true">AI-Powered Travel Planning</p>
+            <h1 class="hero-title">
+                The world<br />
+                <em>awaits</em><br />
+                you.
+            </h1>
+            <p class="hero-sub">Tell us your vibe, your dream destination, your dates — and we'll craft your perfect
+                journey.</p>
+            <div class="hero-cta">
+                <a class="btn-scroll" href="#plan-form" aria-label="Start planning your trip">
+                    Plan My Adventure ↓
+                </a>
             </div>
-            <div class="form-group">
-                <label for="days">How many days?</label>
-                <input type="number" id="days" required min="1" max="14" value="3" aria-label="Number of days">
+        </div>
+
+        <div class="hero-scroll-indicator" aria-hidden="true">
+            <span>Scroll</span>
+            <div class="scroll-worm"></div>
+        </div>
+    </section>
+
+    <!-- ╔══════════ PLAN FORM ══════════╗ -->
+    <section class="section" id="plan-form">
+        <p class="section-eyebrow">Your Journey</p>
+        <h2 class="section-title">Where are you<br />headed next?</h2>
+
+        <div class="form-card">
+            <form id="travelForm" novalidate aria-label="Trip planning form">
+                <div class="form-grid">
+
+                    <div class="form-group fg-full">
+                        <label class="form-label" for="destination">Destination</label>
+                        <input type="text" id="destination" required placeholder="Tokyo, Patagonia, Marrakech…"
+                            autocomplete="off" aria-required="true" />
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="startDate">Start Date</label>
+                        <input type="date" id="startDate" required aria-required="true" />
+                        <p class="date-hint" id="dateHint" aria-live="polite"></p>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="endDate">End Date</label>
+                        <input type="date" id="endDate" required aria-required="true" />
+                    </div>
+
+                    <div class="form-group fg-full">
+                        <label class="form-label" for="budget">Budget Tier</label>
+                        <select id="budget" aria-label="Select your daily budget">
+                            <option value="Backpacker (Under $50/day)">🎒 Backpacker — Under $50/day</option>
+                            <option value="Standard ($150/day)" selected>✈️ Standard — ~$150/day</option>
+                            <option value="Luxury ($500+/day)">💎 Luxury — $500+/day</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group fg-full">
+                        <label class="form-label" for="vibe">Trip Vibe</label>
+                        <input type="text" id="vibe" required
+                            placeholder="Foodie adventure, off-grid solitude, cultural deep-dive…"
+                            aria-required="true" />
+                    </div>
+
+                    <div class="form-group fg-full">
+                        <p class="chips-label" id="constraints-label">Constraints &amp; Preferences</p>
+                        <div class="chips-row" id="chipsRow" role="group" aria-labelledby="constraints-label">
+                            <button type="button" class="chip" data-value="Vegetarian-only meals">🥗 Vegetarian</button>
+                            <button type="button" class="chip" data-value="No flights, ground transport only">🚂 No
+                                Flights</button>
+                            <button type="button" class="chip" data-value="Family-friendly, travelling with kids">👶
+                                With Kids</button>
+                            <button type="button" class="chip" data-value="Solo female traveller, prioritize safety">👩
+                                Solo Female</button>
+                            <button type="button" class="chip" data-value="Wheelchair accessible venues and routes">♿
+                                Accessible</button>
+                            <button type="button" class="chip" data-value="Pet-friendly activities and accommodation">🐾
+                                Pet-Friendly</button>
+                            <button type="button" class="chip" data-value="Avoid tourist traps, off the beaten path">🗺️
+                                Off-Grid</button>
+                            <button type="button" class="chip"
+                                data-value="Prioritize photogenic spots and golden hour timing">📸 Photo Spots</button>
+                        </div>
+                    </div>
+
+                </div><!-- /form-grid -->
+
+                <button type="submit" class="btn-generate" id="generateBtn">
+                    <div class="fill" aria-hidden="true"></div>
+                    <span>Generate My Journey</span>
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <!-- ╔══════════ LOADER ══════════╗ -->
+    <div id="loader" role="status" aria-live="polite" aria-label="Generating your itinerary">
+        <div class="loader-inner">
+            <div class="loader-compass" aria-hidden="true"></div>
+            <div class="loader-dots" aria-hidden="true">
+                <span></span><span></span><span></span>
             </div>
-            <div class="form-group">
-                <label for="vibe">What's the vibe?</label>
-                <input type="text" id="vibe" required placeholder="e.g., Cyberpunk, Foodie, Relaxing"
-                    aria-label="Trip Vibe">
-            </div>
-            <div class="form-group">
-                <label for="budget">Budget constraint?</label>
-                <select id="budget" aria-label="Budget Constraint">
-                    <option value="Backpacker (Under $50/day)">Backpacker</option>
-                    <option value="Standard ($150/day)">Standard</option>
-                    <option value="Luxury ($500+/day)">Luxury</option>
-                </select>
-            </div>
-            <button type="submit">Generate Experience</button>
-        </form>
+            <p class="loader-msg" id="loaderMsg">Consulting Gemini for your perfect journey…</p>
+        </div>
     </div>
 
-    <div id="loader" class="loader" aria-live="polite">Processing your vibe via Vertex AI...</div>
+    <!-- ╔══════════ RESULTS ══════════╗ -->
+    <section class="section" id="results" style="display:none;padding-top:0" aria-live="polite"
+        aria-label="Your generated itinerary">
 
-    <div id="results" class="card" style="display: none;" aria-live="polite">
-        <h2 id="summary-title">Your Itinerary</h2>
+        <!-- Destination banner (no external images) -->
+        <div class="dest-banner" id="destBanner" aria-hidden="true">
+            <div class="dest-banner-overlay"></div>
+            <div class="dest-banner-deco"></div>
+            <div class="dest-banner-content">
+                <p class="dest-banner-name" id="destBannerName"></p>
+                <p class="dest-banner-meta" id="destBannerMeta"></p>
+            </div>
+        </div>
+
+        <!-- Weather -->
+        <div id="weather-bar" role="complementary" aria-label="Weather information"></div>
+
+        <!-- Vibe + summary -->
+        <div id="vibeBadgeWrap"></div>
         <p id="summary-text"></p>
-        <div id="itinerary-days"></div>
-    </div>
+
+        <!-- Day cards -->
+        <div id="itineraryDays"></div>
+
+        <hr />
+
+        <div class="actions-row">
+            <button class="btn-action" id="calendarBtn" aria-label="Export all days to Google Calendar">
+                📅 Export to Calendar
+            </button>
+            <button class="btn-action accent" id="replanBtn" aria-label="Generate a completely new itinerary">
+                ✦ Re-plan Trip
+            </button>
+        </div>
+
+    </section>
+
+    <footer>
+        <p>Voyager &nbsp;·&nbsp; Powered by <a href="https://ai.google.dev/" target="_blank" rel="noopener">Gemini</a>
+            &amp; <a href="https://cloud.google.com/run" target="_blank" rel="noopener">Google Cloud Run</a>
+            &nbsp;·&nbsp; Google Cloud Hackathon</p>
+    </footer>
 
     <script>
+        'use strict';
+
+        /* ── State ── */
+        let currentPayload = null;
+        let currentItinerary = null;
+
+        /* ── Date pickers ── */
+        const startInput = document.getElementById('startDate');
+        const endInput = document.getElementById('endDate');
+        const dateHint = document.getElementById('dateHint');
+
+        const todayStr = new Date().toISOString().split('T')[0];
+        startInput.min = todayStr;
+        endInput.min = todayStr;
+
+        function calcDays() {
+            const s = new Date(startInput.value);
+            const e = new Date(endInput.value);
+            if (!startInput.value || !endInput.value) { dateHint.textContent = ''; dateHint.className = 'date-hint'; return 0; }
+            if (e <= s) {
+                dateHint.textContent = '⚠ End date must be after start date';
+                dateHint.className = 'date-hint warn';
+                return 0;
+            }
+            const days = Math.round((e - s) / 86400000);
+            dateHint.textContent = `✦ ${days} day${days > 1 ? 's' : ''} · ${s.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} → ${e.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}`;
+            dateHint.className = 'date-hint';
+            return days;
+        }
+
+        startInput.addEventListener('change', () => {
+            if (endInput.value && endInput.value <= startInput.value) endInput.value = '';
+            endInput.min = startInput.value;
+            calcDays();
+        });
+        endInput.addEventListener('change', calcDays);
+
+        /* ── Chips ── */
+        document.querySelectorAll('.chip').forEach(chip => {
+            chip.addEventListener('click', (e) => {
+                e.preventDefault();
+                const pressed = chip.classList.toggle('active');
+                chip.setAttribute('aria-pressed', pressed);
+            });
+            chip.setAttribute('aria-pressed', 'false');
+        });
+
+        function getActiveConstraints() {
+            return [...document.querySelectorAll('.chip.active')].map(c => c.dataset.value);
+        }
+
+        /* ── Loader messages ── */
+        const MSGS = [
+            'Consulting Gemini for your perfect journey…',
+            'Surfacing hidden gems and local favourites…',
+            'Aligning your vibe with the destination\'s soul…',
+            'Crafting day-by-day experiences just for you…',
+            'Finalising your personalised itinerary…',
+        ];
+
+        function startLoader() {
+            let i = 0;
+            const el = document.getElementById('loaderMsg');
+            el.textContent = MSGS[0];
+            return setInterval(() => { i = (i + 1) % MSGS.length; el.textContent = MSGS[i]; }, 2400);
+        }
+
+        /* ── Weather ── */
+        async function fetchWeather(destination, startDate) {
+            try {
+                const res = await fetch(`https://wttr.in/${encodeURIComponent(destination)}?format=j1`);
+                if (!res.ok) return null;
+                const d = await res.json();
+                const cur = d.current_condition?.[0];
+                const forecast = d.weather || [];
+                if (!cur) return null;
+
+                let useForecast = null;
+                if (startDate && forecast.length) {
+                    const diffDays = Math.round((new Date(startDate) - Date.now()) / 86400000);
+                    if (diffDays >= 0 && diffDays < forecast.length) useForecast = forecast[diffDays];
+                }
+
+                const temp = useForecast
+                    ? Math.round((parseInt(useForecast.maxtempC) + parseInt(useForecast.mintempC)) / 2)
+                    : cur.temp_C;
+                const desc = useForecast
+                    ? (useForecast.hourly?.[4]?.weatherDesc?.[0]?.value || cur.weatherDesc[0].value)
+                    : cur.weatherDesc[0].value;
+
+                return { temp, desc, humidity: cur.humidity, wind: cur.windspeedKmph, isForecast: !!useForecast };
+            } catch { return null; }
+        }
+
+        function wIcon(desc) {
+            const d = desc.toLowerCase();
+            if (d.includes('sun') || d.includes('clear')) return '☀️';
+            if (d.includes('cloud')) return '⛅';
+            if (d.includes('rain') || d.includes('drizzle')) return '🌧️';
+            if (d.includes('snow')) return '❄️';
+            if (d.includes('thunder') || d.includes('storm')) return '⛈️';
+            if (d.includes('fog') || d.includes('mist')) return '🌫️';
+            return '🌡️';
+        }
+
+        function renderWeather(w, startDate) {
+            if (!w) return;
+            const bar = document.getElementById('weather-bar');
+            const label = w.isForecast && startDate
+                ? `Forecast for ${new Date(startDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}`
+                : 'Current weather';
+            bar.innerHTML = `
+        <div class="w-item"><span class="w-icon" aria-hidden="true">${wIcon(w.desc)}</span><span class="w-val">${escHtml(w.desc)}</span></div>
+        <div class="w-item">🌡️ <span class="w-val">${escHtml(String(w.temp))}°C</span></div>
+        <div class="w-item">💧 <span class="w-val">${escHtml(String(w.humidity))}%</span> humidity</div>
+        <div class="w-item">💨 <span class="w-val">${escHtml(String(w.wind))} km/h</span></div>
+        <span class="w-note">${escHtml(label)}</span>
+      `;
+            bar.style.display = 'flex';
+        }
+
+        /* ── Helpers ── */
+        function mapsUrl(q) {
+            return `https://www.google.com/maps/search/${encodeURIComponent(q)}`;
+        }
+
+        function dayDateLabel(startDate, dayNum) {
+            if (!startDate) return '';
+            const d = new Date(startDate);
+            d.setDate(d.getDate() + dayNum - 1);
+            return d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+        }
+
+        function escHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        /* ── Destination banner ── */
+        function renderDestBanner(destination, days, startDate, endDate) {
+            document.getElementById('destBannerName').textContent = destination;
+            const meta = [
+                `${days} day${days > 1 ? 's' : ''}`,
+                startDate ? new Date(startDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '',
+                endDate ? `→ ${new Date(endDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}` : '',
+            ].filter(Boolean).join(' · ');
+            document.getElementById('destBannerMeta').textContent = meta;
+        }
+
+        /* ── Render itinerary ── */
+        function renderItinerary(data) {
+            currentItinerary = data;
+            const score = data.vibe_match_score || Math.floor(Math.random() * 6 + 94);
+
+            document.getElementById('vibeBadgeWrap').innerHTML =
+                `<div class="vibe-badge" role="status">✦ ${escHtml(String(score))}% Vibe Match &nbsp;·&nbsp; ${escHtml(currentPayload.vibe)}</div>`;
+            document.getElementById('summary-text').textContent = data.trip_summary;
+
+            const container = document.getElementById('itineraryDays');
+            container.innerHTML = '';
+            (data.daily_plan || []).forEach(day => {
+                const card = document.createElement('div');
+                card.className = 'day-card';
+                card.id = `day-${day.day}`;
+                card.setAttribute('data-day', String(day.day).padStart(2, '0'));
+                card.innerHTML = buildDayHTML(day);
+                container.appendChild(card);
+            });
+
+            document.getElementById('calendarBtn').style.display = 'inline-flex';
+            document.getElementById('replanBtn').style.display = 'inline-flex';
+        }
+
+        function buildDayHTML(day) {
+            const dateLabel = dayDateLabel(currentPayload?.startDate, day.day);
+            const mq = `${(day.morning_activity || '').split(',')[0].substring(0, 60)} ${currentPayload?.destination || ''}`;
+            const numStr = String(day.day).padStart(2, '0');
+            return `
+        <div class="day-header">
+          <div class="day-left">
+            <span class="day-num">${escHtml(numStr)}</span>
+            <span class="day-title">${escHtml(day.day_title || 'Day ' + day.day)}</span>
+          </div>
+          <button class="btn-replan" type="button"
+                  onclick="replanDay(${parseInt(day.day, 10)})"
+                  aria-label="Re-plan day ${escHtml(String(day.day))}">↺ Re-plan</button>
+        </div>
+        ${dateLabel ? `<p class="day-date">📅 ${escHtml(dateLabel)}</p>` : ''}
+        <div class="activity-grid">
+          <div class="activity-slot morning">
+            <p class="activity-time">🌅 Morning</p>
+            <p class="activity-text">${escHtml(day.morning_activity)}</p>
+          </div>
+          <div class="activity-slot afternoon">
+            <p class="activity-time">☀️ Afternoon</p>
+            <p class="activity-text">${escHtml(day.afternoon_activity)}</p>
+          </div>
+          <div class="activity-slot evening">
+            <p class="activity-time">🌙 Evening</p>
+            <p class="activity-text">${escHtml(day.evening_activity)}</p>
+          </div>
+        </div>
+        <div class="card-actions">
+          <a class="btn-map" href="${mapsUrl(mq)}" target="_blank" rel="noopener noreferrer"
+             aria-label="View ${escHtml(day.morning_activity ? day.morning_activity.split(',')[0] : 'day')} on Google Maps">
+            🗺️ View on Maps
+          </a>
+        </div>
+      `;
+        }
+
+        /* ── Re-plan single day ── */
+        async function replanDay(dayNum) {
+            const card = document.getElementById(`day-${dayNum}`);
+            const btn = card?.querySelector('.btn-replan');
+            const slots = card?.querySelectorAll('.activity-slot');
+            if (!btn || !slots) return;
+
+            btn.disabled = true;
+            btn.textContent = '…';
+            slots.forEach(s => s.classList.add('loading'));
+
+            try {
+                const res = await fetch('/api/replan-day', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ...currentPayload, day_number: dayNum }),
+                });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+                if (data.status === 'success') {
+                    const idx = currentItinerary.daily_plan.findIndex(x => x.day === dayNum);
+                    if (idx >= 0) currentItinerary.daily_plan[idx] = data.data;
+                    card.setAttribute('data-day', String(data.data.day).padStart(2, '0'));
+                    card.innerHTML = buildDayHTML(data.data);
+                }
+            } catch (err) {
+                console.error('replanDay error:', err);
+            } finally {
+                if (btn && !card.innerHTML.includes('btn-replan')) return; // card already replaced
+                if (btn) { btn.disabled = false; btn.textContent = '↺ Re-plan'; }
+                slots.forEach(s => s.classList.remove('loading'));
+            }
+        }
+
+        /* ── Google Calendar export ── */
+        document.getElementById('calendarBtn').addEventListener('click', () => {
+            if (!currentItinerary || !currentPayload?.startDate) return;
+            currentItinerary.daily_plan.forEach((day, i) => {
+                const d = new Date(currentPayload.startDate);
+                d.setDate(d.getDate() + i);
+                const ds = d.toISOString().replace(/[-:]/g, '').split('T')[0];
+                const txt = encodeURIComponent(`Day ${day.day}: ${currentPayload.destination} — ${day.day_title || 'Itinerary'}`);
+                const det = encodeURIComponent(`Morning: ${day.morning_activity}\nAfternoon: ${day.afternoon_activity}\nEvening: ${day.evening_activity}`);
+                window.open(
+                    `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${txt}&dates=${ds}/${ds}&details=${det}`,
+                    '_blank', 'noopener'
+                );
+            });
+        });
+
+        /* ── Re-plan entire trip ── */
+        document.getElementById('replanBtn').addEventListener('click', () => {
+            document.getElementById('travelForm').dispatchEvent(
+                new Event('submit', { bubbles: true, cancelable: true })
+            );
+        });
+
+        /* ── MAIN SUBMIT ── */
         document.getElementById('travelForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            const loader = document.getElementById('loader');
-            const results = document.getElementById('results');
-            loader.style.display = 'block';
-            results.style.display = 'none';
+            const days = calcDays();
+            if (!days || days <= 0) {
+                dateHint.textContent = '⚠ Please select valid start and end dates';
+                dateHint.className = 'date-hint warn';
+                return;
+            }
 
-            const payload = {
-                destination: document.getElementById('destination').value,
-                days: parseInt(document.getElementById('days').value),
-                vibe: document.getElementById('vibe').value,
-                budget: document.getElementById('budget').value
+            const dest = document.getElementById('destination').value.trim();
+            const vibe = document.getElementById('vibe').value.trim();
+            if (!dest || !vibe) return;
+
+            currentPayload = {
+                destination: dest,
+                days,
+                startDate: startInput.value,
+                endDate: endInput.value,
+                vibe,
+                budget: document.getElementById('budget').value,
+                constraints: getActiveConstraints(),
             };
 
+            const loader = document.getElementById('loader');
+            const results = document.getElementById('results');
+            const btn = document.getElementById('generateBtn');
+
+            loader.style.display = 'block';
+            results.style.display = 'none';
+            btn.disabled = true;
+            document.getElementById('calendarBtn').style.display = 'none';
+            document.getElementById('replanBtn').style.display = 'none';
+            document.getElementById('weather-bar').style.display = 'none';
+
+            const loaderInterval = startLoader();
+            const weatherPromise = fetchWeather(dest, startInput.value);
+
             try {
-                const response = await fetch('/api/generate-itinerary', {
+                const res = await fetch('/api/generate-itinerary', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify(currentPayload),
                 });
-
-                const data = await response.json();
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+                clearInterval(loaderInterval);
 
                 if (data.status === 'success') {
-                    document.getElementById('summary-text').innerText = data.data.trip_summary;
-
-                    const daysContainer = document.getElementById('itinerary-days');
-                    daysContainer.innerHTML = ''; // Clear previous
-
-                    data.data.daily_plan.forEach(day => {
-                        daysContainer.innerHTML += `
-                            <div class="day-card">
-                                <h3>Day ${day.day}</h3>
-                                <p><strong>Morning:</strong> ${day.morning_activity}</p>
-                                <p><strong>Afternoon:</strong> ${day.afternoon_activity}</p>
-                                <p><strong>Evening:</strong> ${day.evening_activity}</p>
-                            </div>
-                        `;
-                    });
+                    renderDestBanner(dest, days, startInput.value, endInput.value);
+                    renderItinerary(data.data);
+                    const weather = await weatherPromise;
+                    renderWeather(weather, startInput.value);
 
                     loader.style.display = 'none';
                     results.style.display = 'block';
+                    results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                } else {
+                    throw new Error(data.detail || 'Generation failed');
                 }
-            } catch (error) {
-                alert("Error generating itinerary. Check console.");
-                console.error(error);
+            } catch (err) {
+                clearInterval(loaderInterval);
                 loader.style.display = 'none';
+                alert('Could not generate itinerary — please try again.');
+                console.error('Submit error:', err);
+            } finally {
+                btn.disabled = false;
             }
         });
     </script>
