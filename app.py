@@ -8,12 +8,8 @@ from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 import google.generativeai as genai
 
-# --- 1. CONFIGURATION & AI SETUP ---
-load_dotenv()
-
-api_key = os.getenv("GOOGLE_API_KEY")
-if not api_key:
-    raise ValueError("GOOGLE_API_KEY not found in .env file. Please add it!")
+# Cloud Run automatically provides this from Secret Manager now
+api_key = os.environ.get("GOOGLE_API_KEY")
 
 genai.configure(api_key=api_key)
 

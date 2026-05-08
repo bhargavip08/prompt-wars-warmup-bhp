@@ -1,5 +1,6 @@
-fastapi==0.104.1
-uvicorn==0.24.0
-google-generativeai==0.3.1
-pydantic==2.5.2
-jinja2==3.1.2
+fastapi
+uvicorn
+google-generativeai
+jinja2
+pydantic
+python-dotenv
