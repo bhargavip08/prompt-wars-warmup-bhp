@@ -14,7 +14,7 @@ api_key = os.environ.get("GOOGLE_API_KEY")
 genai.configure(api_key=api_key)
 
 def get_bulletproof_model():
-    """Dynamically finds an available model to prevent 404 errors."""
+    """Dynamically finds an available model to avoid latency"""
     try:
         available = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
         # Check for Gemini 3 first, then 1.5 variants
